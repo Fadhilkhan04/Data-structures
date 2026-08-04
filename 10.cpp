@@ -55,6 +55,16 @@ int getBalanceFactor(Node *node)
     return 0;
   return height(node->left) - height(node->right);
 }
+Node *minValueNode(Node *node)
+{
+  Node *current = node;
+
+  while (current->left != NULL)
+    current = current->left;
+
+  return current;
+}
+
 Node *insert(Node *node, int data)
 {
   if (node == NULL)
@@ -89,6 +99,91 @@ Node *insert(Node *node, int data)
   }
   return node;
 }
+Node *deleteNode(Node *root, int data)
+{
+  if (root == NULL)
+    return root;
+
+  // Perform standard BST deletion
+  if (data < root->data)
+    root->left = deleteNode(root->left, data);
+
+  else if (data > root->data)
+    root->right = deleteNode(root->right, data);
+
+  else
+  {
+    // Node with only one child or no child
+    if ((root->left == NULL) || (root->right == NULL))
+    {
+      Node *temp;
+
+      if (root->left != NULL)
+        temp = root->left;
+      else
+        temp = root->right;
+
+      // No child
+      if (temp == NULL)
+      {
+        temp = root;
+        root = NULL;
+      }
+      else
+      {
+        // One child
+        *root = *temp;
+      }
+
+      delete temp;
+    }
+
+    // Node with two children
+    else
+    {
+      Node *temp = minValueNode(root->right);
+
+      root->data = temp->data;
+
+      root->right = deleteNode(root->right, temp->data);
+    }
+  }
+
+  // If tree had only one node
+  if (root == NULL)
+    return root;
+
+  // Update height
+  root->height = 1 + max(height(root->left), height(root->right));
+
+  // Get balance factor
+  int balance = getBalanceFactor(root);
+
+  // LL Case
+  if (balance > 1 && getBalanceFactor(root->left) >= 0)
+    return rotateRight(root);
+
+  // LR Case
+  if (balance > 1 && getBalanceFactor(root->left) < 0)
+  {
+    root->left = rotateLeft(root->left);
+    return rotateRight(root);
+  }
+
+  // RR Case
+  if (balance < -1 && getBalanceFactor(root->right) <= 0)
+    return rotateLeft(root);
+
+  // RL Case
+  if (balance < -1 && getBalanceFactor(root->right) > 0)
+  {
+    root->right = rotateRight(root->right);
+    return rotateLeft(root);
+  }
+
+  return root;
+}
+
 void inorderTraversal(Node *node)
 {
   if (node == NULL)
@@ -126,6 +221,7 @@ int main()
     cin >> data;
     root = insert(root, data);
   }
+
   cout << "Inorder traversal: ";
   inorderTraversal(root);
   cout << endl;
@@ -136,9 +232,21 @@ int main()
   postorderTraversal(root);
   cout << endl
        << endl;
-  cout << "\n------Done By:-------" << endl;
-  cout << "Fadhil khan" << endl;
-  cout << "220071601060" << endl;
-  cout << "B.Tech CSE - A" << endl;
+  int del;
+
+  cout << "\nEnter the element to delete: ";
+  cin >> del;
+
+  root = deleteNode(root, del);
+  cout << "Inorder traversal: ";
+  inorderTraversal(root);
+  cout << endl;
+  cout << "Preorder traversal: ";
+  preorderTraversal(root);
+  cout << endl;
+  cout << "Postorder traversal: ";
+  postorderTraversal(root);
+  cout << endl
+       << endl;
   return 0;
 }
