@@ -133,7 +133,7 @@ Node *deleteNode(Node *root, int x)
     root->left = deleteNode(root->left, x);
   else if (x > root->data)
     root->right = deleteNode(root->right, x);
-  else
+  /* else
   {
     if (root->left == nullptr ||
         root->right == nullptr)
@@ -149,6 +149,24 @@ Node *deleteNode(Node *root, int x)
       return temp;
     }
 
+    Node *temp = findMin(root->right);
+    root->data = temp->data;
+    root->right = deleteNode(root->right, temp->data);
+  } */
+  else
+  {
+    if (root->left == nullptr)
+    {
+      Node *temp = root->right;
+      delete root;
+      return temp;
+    }
+    else if (root->right == nullptr)
+    {
+      Node *temp = root->left;
+      delete root;
+      return temp;
+    }
     Node *temp = findMin(root->right);
     root->data = temp->data;
     root->right = deleteNode(root->right, temp->data);
